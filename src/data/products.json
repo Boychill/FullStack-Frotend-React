@@ -1,0 +1,215 @@
+[
+    {
+        "id": "1",
+        "name": "Smartphone Pro Max",
+        "slug": "smartphone-pro-max",
+        "price": 999990,
+        "description": "High-end smartphone with advanced camera and fast processor.",
+        "category": "technology",
+        "images": [
+            "https://images.unsplash.com/photo-1598327105666-5b89351aff97?auto=format&fit=crop&q=80&w=600",
+            "https://images.unsplash.com/photo-1616348436168-de43ad0db179?auto=format&fit=crop&q=80&w=600",
+            "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&q=80&w=600"
+        ],
+        "stock": 105,
+        "rating": 4.8,
+        "reviews": 120,
+        "featured": true,
+        "attributes": [
+            {
+                "name": "color",
+                "options": [
+                    "Black",
+                    "Silver",
+                    "Gold"
+                ]
+            },
+            {
+                "name": "storage",
+                "options": [
+                    "256GB",
+                    "512GB"
+                ]
+            }
+        ],
+        "combinations": [
+            {
+                "id": "1-black-256",
+                "values": {
+                    "color": "Black",
+                    "storage": "256GB"
+                },
+                "stock": 50
+            },
+            {
+                "id": "1-silver-256",
+                "values": {
+                    "color": "Silver",
+                    "storage": "256GB"
+                },
+                "stock": 45
+            },
+            {
+                "id": "1-gold-512",
+                "values": {
+                    "color": "Gold",
+                    "storage": "512GB"
+                },
+                "stock": 10
+            }
+        ]
+    },
+    {
+        "id": "2",
+        "name": "Laptop UltraSlim 15",
+        "slug": "laptop-ultraslim-15",
+        "price": 1250000,
+        "description": "Powerful laptop for professionals and creatives.",
+        "category": "technology",
+        "images": [
+            "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&q=80&w=600"
+        ],
+        "stock": 20,
+        "rating": 4.5,
+        "reviews": 45,
+        "featured": true,
+        "attributes": [
+            {
+                "name": "color",
+                "options": [
+                    "Silver"
+                ]
+            },
+            {
+                "name": "ram",
+                "options": [
+                    "16GB"
+                ]
+            }
+        ],
+        "combinations": [
+            {
+                "id": "2-std",
+                "values": {
+                    "color": "Silver",
+                    "ram": "16GB"
+                },
+                "stock": 20
+            }
+        ]
+    },
+    {
+        "id": "3",
+        "name": "Wireless Noise Cancelling Headphones",
+        "slug": "wireless-headphones",
+        "price": 250000,
+        "description": "Immersive sound with active noise cancellation.",
+        "category": "technology",
+        "images": [
+            "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&q=80&w=600"
+        ],
+        "stock": 100,
+        "rating": 4.2,
+        "reviews": 89,
+        "featured": false,
+        "attributes": [
+            {
+                "name": "color",
+                "options": [
+                    "Black"
+                ]
+            }
+        ],
+        "combinations": [
+            {
+                "id": "3-blk",
+                "values": {
+                    "color": "Black"
+                },
+                "stock": 100
+            }
+        ]
+    },
+    {
+        "id": "4",
+        "name": "Men's Cotton T-Shirt",
+        "slug": "mens-cotton-tshirt",
+        "price": 15000,
+        "description": "Premium cotton t-shirt, comfortable and breathable.",
+        "category": "clothing",
+        "images": [
+            "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&q=80&w=600",
+            "https://images.unsplash.com/photo-1581655353564-df123a1eb820?auto=format&fit=crop&q=80&w=600"
+        ],
+        "stock": 350,
+        "rating": 4.0,
+        "reviews": 200,
+        "featured": false,
+        "attributes": [
+            {
+                "name": "color",
+                "options": [
+                    "White",
+                    "Black"
+                ]
+            },
+            {
+                "name": "size",
+                "options": [
+                    "M",
+                    "L"
+                ]
+            }
+        ],
+        "combinations": [
+            {
+                "id": "4-white-l",
+                "values": {
+                    "color": "White",
+                    "size": "L"
+                },
+                "stock": 200
+            },
+            {
+                "id": "4-black-m",
+                "values": {
+                    "color": "Black",
+                    "size": "M"
+                },
+                "stock": 150
+            }
+        ]
+    },
+    {
+        "id": "5",
+        "name": "Denim Jacket",
+        "slug": "denim-jacket",
+        "price": 45000,
+        "description": "Classic denim jacket for everyday style.",
+        "category": "clothing",
+        "images": [
+            "https://images.unsplash.com/photo-1576995853123-5a10305d93c0?auto=format&fit=crop&q=80&w=600"
+        ],
+        "stock": 80,
+        "rating": 4.6,
+        "reviews": 32,
+        "featured": true,
+        "attributes": [
+            {
+                "name": "size",
+                "options": [
+                    "M"
+                ]
+            }
+        ],
+        "combinations": [
+            {
+                "id": "5-m",
+                "values": {
+                    "size": "M"
+                },
+                "stock": 80
+            }
+        ]
+    }
+]
