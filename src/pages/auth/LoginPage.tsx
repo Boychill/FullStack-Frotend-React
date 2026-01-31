@@ -52,7 +52,7 @@ export function LoginPage() {
             if (success) {
                 navigate('/');
             } else {
-                setError('Credenciales inválidas. Intenta con admin@admin.com / admin123');
+                setError('Credenciales inválidas. Por favor verifica tus datos.');
             }
         } catch (err) {
             setError('Ocurrió un error al iniciar sesión');

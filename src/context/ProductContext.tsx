@@ -1,9 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Product } from '../types';
-import initialProductsData from '../data/products.json';
+import client from '../api/client';
 
-// Ensure data matches Type
-const initialProducts = initialProductsData as Product[];
 
 interface ProductContextType {
     products: Product[];
@@ -22,39 +20,30 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
     const [products, setProducts] = useState<Product[]>([]);
     const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
 
-    // Increment this version when seed data changes structure to force a reload from JSON
-    const DATA_VERSION = '1.1';
-
     useEffect(() => {
-        const storedProducts = localStorage.getItem('products');
-        const storedVersion = localStorage.getItem('data_version');
-
-        if (storedProducts && storedVersion === DATA_VERSION) {
+        const fetchProducts = async () => {
             try {
-                const parsed = JSON.parse(storedProducts);
-                setProducts(parsed);
-                setFilteredProducts(parsed);
-            } catch (e) {
-                console.error("Failed to parse stored products", e);
-                setProducts(initialProducts);
-                setFilteredProducts(initialProducts);
-                localStorage.setItem('products', JSON.stringify(initialProducts));
-                localStorage.setItem('data_version', DATA_VERSION);
+                const { data } = await client.get('/products');
+                // Map _id to id if backend sends _id
+                const mappedProducts = data.map((p: any) => ({
+                    ...p,
+                    id: p._id || p.id
+                }));
+                setProducts(mappedProducts);
+                setFilteredProducts(mappedProducts);
+            } catch (error) {
+                console.error("Error fetching products:", error);
             }
-        } else {
-            // Force reload if version mismatch or no data
-            console.log("Data version mismatch or empty. Reloading from seed.");
-            setProducts(initialProducts);
-            setFilteredProducts(initialProducts);
-            localStorage.setItem('products', JSON.stringify(initialProducts));
-            localStorage.setItem('data_version', DATA_VERSION);
-        }
+        };
+
+        fetchProducts();
     }, []);
 
     const saveProducts = (newProducts: Product[]) => {
+        // En una app real, aquí haríamos llamadas PUT/POST a la API.
+        // Por ahora mantenemos el estado local sincronizado para la UI.
         setProducts(newProducts);
-        setFilteredProducts(newProducts); // Reset filter to show all or handle filter re-apply if needed
-        localStorage.setItem('products', JSON.stringify(newProducts));
+        setFilteredProducts(newProducts);
     };
 
     const filterByCategory = (category: string) => {
