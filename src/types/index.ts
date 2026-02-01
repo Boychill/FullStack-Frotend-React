@@ -31,6 +31,7 @@ export interface ProductVariant {
     id: string;
     values: Record<string, string>;
     stock: number;
+    price?: number;
 }
 
 export interface User {

@@ -39,7 +39,8 @@
                     "color": "Black",
                     "storage": "256GB"
                 },
-                "stock": 50
+                "stock": 50,
+                "price": 999990
             },
             {
                 "id": "1-silver-256",
@@ -47,7 +48,8 @@
                     "color": "Silver",
                     "storage": "256GB"
                 },
-                "stock": 45
+                "stock": 45,
+                "price": 999990
             },
             {
                 "id": "1-gold-512",
@@ -55,7 +57,8 @@
                     "color": "Gold",
                     "storage": "512GB"
                 },
-                "stock": 10
+                "stock": 10,
+                "price": 1099990
             }
         ]
     },

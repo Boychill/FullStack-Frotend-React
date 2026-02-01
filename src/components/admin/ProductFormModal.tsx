@@ -236,7 +236,8 @@ export function ProductFormModal({ isOpen, onClose, onSubmit, initialData }: Pro
                                             return {
                                                 id: id,
                                                 values: c,
-                                                stock: existing ? existing.stock : 0
+                                                stock: existing ? existing.stock : 0,
+                                                price: existing?.price !== undefined ? existing.price : Number(formData.price)
                                             };
                                         });
 
@@ -257,6 +258,7 @@ export function ProductFormModal({ isOpen, onClose, onSubmit, initialData }: Pro
                                         <thead className="bg-gray-100 text-gray-600 font-medium border-b border-gray-200">
                                             <tr>
                                                 <th className="px-4 py-3">Variante</th>
+                                                <th className="px-4 py-3 w-32">Precio</th>
                                                 <th className="px-4 py-3 w-32">Stock</th>
                                             </tr>
                                         </thead>
@@ -271,6 +273,23 @@ export function ProductFormModal({ isOpen, onClose, onSubmit, initialData }: Pro
                                                                 </span>
                                                             ))}
                                                         </div>
+                                                    </td>
+                                                    <td className="px-4 py-3">
+                                                        <Input
+                                                            type="number"
+                                                            min={0}
+                                                            className="h-8 bg-white"
+                                                            value={combo.price}
+                                                            onChange={e => {
+                                                                const val = Number(e.target.value) || 0;
+                                                                const newCombos = [...(formData.combinations || [])];
+                                                                newCombos[idx].price = val;
+                                                                setFormData(prev => ({
+                                                                    ...prev,
+                                                                    combinations: newCombos
+                                                                }));
+                                                            }}
+                                                        />
                                                     </td>
                                                     <td className="px-4 py-3">
                                                         <Input
