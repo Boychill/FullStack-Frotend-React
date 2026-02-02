@@ -199,12 +199,15 @@ export function ProductFormModal({ isOpen, onClose, onSubmit, initialData }: Pro
         const finalStock = formData.stock === '' ? 0 : Number(formData.stock);
 
         // Clean combinations data types
-        const cleanCombinations: ProductVariant[] = (formData.combinations || []).map(c => ({
-            id: c.id,
-            values: c.values,
-            stock: c.stock === '' ? 0 : Number(c.stock),
-            price: c.price === '' || c.price === undefined ? finalPrice : Number(c.price)
-        }));
+        const cleanCombinations: ProductVariant[] = (formData.combinations || []).map(c => {
+            const variantWithPotentialString = c as any;
+            return {
+                id: c.id,
+                values: c.values,
+                stock: variantWithPotentialString.stock === '' ? 0 : Number(variantWithPotentialString.stock),
+                price: variantWithPotentialString.price === '' || variantWithPotentialString.price === undefined ? finalPrice : Number(variantWithPotentialString.price)
+            };
+        });
 
         const productSubmission = {
             id: initialData?.id || crypto.randomUUID(),
