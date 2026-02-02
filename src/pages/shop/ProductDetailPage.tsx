@@ -47,10 +47,36 @@ export function ProductDetailPage() {
         );
     }
 
+    const [notification, setNotification] = useState<{ show: boolean; message: string; type: 'success' | 'error' }>({
+        show: false,
+        message: '',
+        type: 'success'
+    });
+
+    // Hide notification after 3 seconds
+    useEffect(() => {
+        if (notification.show) {
+            const timer = setTimeout(() => {
+                setNotification(prev => ({ ...prev, show: false }));
+            }, 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [notification.show]);
+
     const handleAddToCart = () => {
         const success = addToCart(product, quantity, selectedOptions);
         if (!success) {
-            alert(`No puedes agregar más productos. El stock máximo disponible es ${product.stock} y ya tienes unidades en el carro.`);
+            setNotification({
+                show: true,
+                message: `Stock máximo disponible: ${product.stock}. Ya tienes unidades en el carro.`,
+                type: 'error'
+            });
+        } else {
+            setNotification({
+                show: true,
+                message: 'Producto agregado al carro correctamente',
+                type: 'success'
+            });
         }
     };
 
@@ -278,6 +304,31 @@ export function ProductDetailPage() {
                     </div>
                 </div>
             </div>
+            {/* Notification Toast */}
+            {notification.show && (
+                <div className={`fixed top-24 right-4 z-50 p-4 rounded-xl shadow-xl border animate-in slide-in-from-right-5 fade-in duration-300 flex items-center gap-3 max-w-md ${notification.type === 'error'
+                        ? 'bg-white border-red-100 text-red-600'
+                        : 'bg-gray-900 border-gray-900 text-white'
+                    }`}>
+                    {notification.type === 'error' ? (
+                        <div className="bg-red-100 p-2 rounded-full">
+                            <ShieldCheck size={20} className="text-red-600" />
+                        </div>
+                    ) : (
+                        <div className="bg-white/20 p-2 rounded-full">
+                            <ShoppingCart size={20} className="text-white" />
+                        </div>
+                    )}
+                    <div>
+                        <h4 className={`font-bold text-sm ${notification.type === 'error' ? 'text-red-900' : 'text-white'}`}>
+                            {notification.type === 'error' ? 'No se pudo agregar' : '¡Agregado al carro!'}
+                        </h4>
+                        <p className={`text-xs mt-0.5 ${notification.type === 'error' ? 'text-red-600' : 'text-gray-300'}`}>
+                            {notification.message}
+                        </p>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
