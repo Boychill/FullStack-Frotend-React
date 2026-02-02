@@ -12,6 +12,8 @@ interface ProductFormModalProps {
 }
 
 export function ProductFormModal({ isOpen, onClose, onSubmit, initialData }: ProductFormModalProps) {
+    const [errors, setErrors] = useState<Record<string, string>>({});
+
     // Extendemos el tipo para permitir strings vacíos en los inputs numéricos mientras se edita
     // También permitimos que price/stock en combinaciones sean strings temporalmente para UX
     const [formData, setFormData] = useState<Omit<Partial<Product>, 'price' | 'stock'> & {
@@ -158,34 +160,50 @@ export function ProductFormModal({ isOpen, onClose, onSubmit, initialData }: Pro
 
     if (!isOpen) return null;
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!formData.name || !formData.category) {
-            alert("Nombre y Categoría son requeridos");
-            return;
-        }
+    const validateForm = () => {
+        const newErrors: Record<string, string> = {};
 
-        const finalPrice = (formData.price as any) === '' ? 0 : Number(formData.price);
-        const finalStock = (formData.stock as any) === '' ? 0 : Number(formData.stock);
+        if (!formData.name?.trim()) newErrors.name = "El nombre es requerido";
+        if (!formData.category) newErrors.category = "La categoría es requerida";
 
-        if (finalPrice < 0 || finalStock < 0) {
-            alert("El precio y el stock no pueden ser negativos");
-            return;
-        }
+        // Convert to numbers for validation
+        const price = Number(formData.price);
+        const stock = Number(formData.stock);
 
+        if (price < 0) newErrors.price = "El precio no puede ser negativo";
+        if (stock < 0) newErrors.stock = "El stock no puede ser negativo";
+
+        // Validate Variants if exist
         if (formData.attributes && formData.attributes.length > 0) {
+            const hasEmptyOptions = formData.attributes.some(a => a.options.length === 0);
+            if (hasEmptyOptions) {
+                newErrors.variants = "Todas las variantes deben tener al menos una opción";
+            }
             if (!formData.combinations || formData.combinations.length === 0) {
-                alert("Completa las opciones de todas las variantes para generar el stock.");
-                return;
+                newErrors.variants = "Debe haber combinaciones generadas";
             }
         }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (!validateForm()) {
+            return;
+        }
+
+        const finalPrice = formData.price === '' ? 0 : Number(formData.price);
+        const finalStock = formData.stock === '' ? 0 : Number(formData.stock);
 
         // Clean combinations data types
         const cleanCombinations: ProductVariant[] = (formData.combinations || []).map(c => ({
             id: c.id,
             values: c.values,
-            stock: (c.stock as any) === '' ? 0 : Number(c.stock),
-            price: (c.price as any) === '' || c.price === undefined ? finalPrice : Number(c.price)
+            stock: c.stock === '' ? 0 : Number(c.stock),
+            price: c.price === '' || c.price === undefined ? finalPrice : Number(c.price)
         }));
 
         const productSubmission = {
@@ -218,7 +236,7 @@ export function ProductFormModal({ isOpen, onClose, onSubmit, initialData }: Pro
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="p-6 space-y-6 overflow-y-auto flex-1">
+                <form onSubmit={handleSubmit} className="p-6 space-y-6 overflow-y-auto flex-1" noValidate>
                     {/* Basic Info */}
                     <div className="grid grid-cols-2 gap-6">
                         <div className="space-y-4">
@@ -226,11 +244,15 @@ export function ProductFormModal({ isOpen, onClose, onSubmit, initialData }: Pro
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
                                 <Input
                                     value={formData.name}
-                                    onChange={e => setFormData({ ...formData, name: e.target.value })}
+                                    onChange={e => {
+                                        setFormData({ ...formData, name: e.target.value });
+                                        if (errors.name) setErrors({ ...errors, name: '' });
+                                    }}
                                     placeholder="Ej: Camiseta Oversize"
                                     required
-                                    className="bg-gray-50 focus:bg-white transition-colors"
+                                    className={`bg-gray-50 focus:bg-white transition-colors ${errors.name ? 'border-red-500 focus:ring-red-200' : ''}`}
                                 />
+                                {errors.name && <p className="mt-1 text-xs text-red-500 font-medium">{errors.name}</p>}
                             </div>
 
                             <div className="grid grid-cols-2 gap-3">
@@ -242,11 +264,13 @@ export function ProductFormModal({ isOpen, onClose, onSubmit, initialData }: Pro
                                         value={formData.price}
                                         onChange={e => {
                                             const val = e.target.value;
-                                            setFormData({ ...formData, price: (val === '' ? '' : Number(val)) as any });
+                                            setFormData({ ...formData, price: val === '' ? '' : Number(val) });
+                                            if (errors.price) setErrors({ ...errors, price: '' });
                                         }}
                                         placeholder="0"
-                                        className="bg-gray-50 focus:bg-white transition-colors"
+                                        className={`bg-gray-50 focus:bg-white transition-colors ${errors.price ? 'border-red-500' : ''}`}
                                     />
+                                    {errors.price && <p className="mt-1 text-xs text-red-500">{errors.price}</p>}
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Stock Base</label>
@@ -256,7 +280,7 @@ export function ProductFormModal({ isOpen, onClose, onSubmit, initialData }: Pro
                                         value={formData.stock}
                                         onChange={e => {
                                             const val = e.target.value;
-                                            setFormData({ ...formData, stock: (val === '' ? '' : Number(val)) as any });
+                                            setFormData({ ...formData, stock: val === '' ? '' : Number(val) });
                                         }}
                                         placeholder="0"
                                         disabled={Boolean(formData.combinations && formData.combinations.length > 0)}
@@ -268,15 +292,19 @@ export function ProductFormModal({ isOpen, onClose, onSubmit, initialData }: Pro
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
                                 <select
-                                    className="flex h-10 w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-sm ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 transition-colors"
+                                    className={`flex h-10 w-full rounded-xl border bg-gray-50 px-3 py-2 text-sm ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 transition-colors ${errors.category ? 'border-red-500' : 'border-gray-200'}`}
                                     value={formData.category}
-                                    onChange={e => setFormData({ ...formData, category: e.target.value as any })}
+                                    onChange={e => {
+                                        setFormData({ ...formData, category: e.target.value as any });
+                                        if (errors.category) setErrors({ ...errors, category: '' });
+                                    }}
                                 >
                                     <option value="">Seleccionar...</option>
                                     <option value="clothing">Ropa</option>
                                     <option value="technology">Tecnología</option>
                                     <option value="accessories">Accesorios</option>
                                 </select>
+                                {errors.category && <p className="mt-1 text-xs text-red-500 font-medium">{errors.category}</p>}
                             </div>
                         </div>
 
@@ -340,11 +368,19 @@ export function ProductFormModal({ isOpen, onClose, onSubmit, initialData }: Pro
                                 onClick={() => {
                                     const newAttrs = [...(formData.attributes || []), { name: '', options: [] }];
                                     setFormData({ ...formData, attributes: newAttrs });
+                                    setErrors({ ...errors, variants: '' });
                                 }}
                             >
                                 <Plus size={14} className="mr-1" /> Nueva Variante
                             </Button>
                         </div>
+
+                        {errors.variants && (
+                            <div className="mb-3 p-2 bg-red-50 border border-red-100 rounded-lg text-xs text-red-600 flex items-center gap-2">
+                                <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+                                {errors.variants}
+                            </div>
+                        )}
 
                         <div className="space-y-3">
                             {formData.attributes?.map((attr: { name: string; options: string[] }, index: number) => (
@@ -438,7 +474,7 @@ export function ProductFormModal({ isOpen, onClose, onSubmit, initialData }: Pro
                                                             onChange={e => {
                                                                 const val = e.target.value;
                                                                 const newCombos = [...(formData.combinations || [])];
-                                                                newCombos[idx].price = (val === '' ? '' : Number(val)) as any;
+                                                                (newCombos[idx] as any).price = val === '' ? '' : Number(val);
                                                                 setFormData(prev => ({ ...prev, combinations: newCombos }));
                                                             }}
                                                             placeholder={String(formData.price || 0)}
@@ -453,7 +489,7 @@ export function ProductFormModal({ isOpen, onClose, onSubmit, initialData }: Pro
                                                             onChange={e => {
                                                                 const val = e.target.value;
                                                                 const newCombos = [...(formData.combinations || [])];
-                                                                newCombos[idx].stock = (val === '' ? '' : Number(val)) as any;
+                                                                (newCombos[idx] as any).stock = val === '' ? '' : Number(val);
                                                                 setFormData(prev => ({ ...prev, combinations: newCombos }));
                                                             }}
                                                             placeholder="0"
