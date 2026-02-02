@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Product, ProductVariant } from '../../types';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
-import { X, Plus, RefreshCw, Image as ImageIcon, Upload } from 'lucide-react';
+import { X, Plus, Image as ImageIcon } from 'lucide-react';
 
 interface ProductFormModalProps {
     isOpen: boolean;
@@ -14,7 +14,7 @@ interface ProductFormModalProps {
 export function ProductFormModal({ isOpen, onClose, onSubmit, initialData }: ProductFormModalProps) {
     // Extendemos el tipo para permitir strings vacíos en los inputs numéricos mientras se edita
     // También permitimos que price/stock en combinaciones sean strings temporalmente para UX
-    const [formData, setFormData] = useState<Partial<Product> & {
+    const [formData, setFormData] = useState<Omit<Partial<Product>, 'price' | 'stock'> & {
         price: number | string,
         stock: number | string,
         attributes: { name: string, options: string[] }[],
@@ -36,12 +36,12 @@ export function ProductFormModal({ isOpen, onClose, onSubmit, initialData }: Pro
                 ...initialData,
                 price: initialData.price,
                 stock: initialData.stock,
-                combinations: initialData.combinations.map(c => ({
+                combinations: (initialData.combinations || []).map(c => ({
                     ...c,
                     price: c.price,
                     stock: c.stock
                 }))
-            });
+            } as any);
         } else {
             setFormData({
                 name: '',
@@ -52,7 +52,7 @@ export function ProductFormModal({ isOpen, onClose, onSubmit, initialData }: Pro
                 attributes: [],
                 images: [],
                 combinations: []
-            });
+            } as any);
         }
     }, [initialData, isOpen]);
 
@@ -105,7 +105,7 @@ export function ProductFormModal({ isOpen, onClose, onSubmit, initialData }: Pro
                     id: existing ? existing.id : crypto.randomUUID(),
                     values: c,
                     stock: existing ? existing.stock : '', // Default to empty string for cleaner input
-                    price: existing?.price !== undefined ? existing.price : (prev.price !== '' ? prev.price : '')
+                    price: existing?.price !== undefined ? existing.price : ((prev.price as any) !== '' ? prev.price : '')
                 };
             });
 
@@ -115,7 +115,7 @@ export function ProductFormModal({ isOpen, onClose, onSubmit, initialData }: Pro
                 if (isSame) return prev;
             }
 
-            return { ...prev, combinations: newVariants };
+            return { ...prev, combinations: newVariants as any };
         });
 
     }, [formData.attributes, generateCombinations, isOpen]);
@@ -165,8 +165,8 @@ export function ProductFormModal({ isOpen, onClose, onSubmit, initialData }: Pro
             return;
         }
 
-        const finalPrice = formData.price === '' ? 0 : Number(formData.price);
-        const finalStock = formData.stock === '' ? 0 : Number(formData.stock);
+        const finalPrice = (formData.price as any) === '' ? 0 : Number(formData.price);
+        const finalStock = (formData.stock as any) === '' ? 0 : Number(formData.stock);
 
         if (finalPrice < 0 || finalStock < 0) {
             alert("El precio y el stock no pueden ser negativos");
@@ -184,8 +184,8 @@ export function ProductFormModal({ isOpen, onClose, onSubmit, initialData }: Pro
         const cleanCombinations: ProductVariant[] = (formData.combinations || []).map(c => ({
             id: c.id,
             values: c.values,
-            stock: c.stock === '' ? 0 : Number(c.stock),
-            price: c.price === '' || c.price === undefined ? finalPrice : Number(c.price)
+            stock: (c.stock as any) === '' ? 0 : Number(c.stock),
+            price: (c.price as any) === '' || c.price === undefined ? finalPrice : Number(c.price)
         }));
 
         const productSubmission = {
@@ -242,7 +242,7 @@ export function ProductFormModal({ isOpen, onClose, onSubmit, initialData }: Pro
                                         value={formData.price}
                                         onChange={e => {
                                             const val = e.target.value;
-                                            setFormData({ ...formData, price: val === '' ? '' : Number(val) });
+                                            setFormData({ ...formData, price: (val === '' ? '' : Number(val)) as any });
                                         }}
                                         placeholder="0"
                                         className="bg-gray-50 focus:bg-white transition-colors"
@@ -256,7 +256,7 @@ export function ProductFormModal({ isOpen, onClose, onSubmit, initialData }: Pro
                                         value={formData.stock}
                                         onChange={e => {
                                             const val = e.target.value;
-                                            setFormData({ ...formData, stock: val === '' ? '' : Number(val) });
+                                            setFormData({ ...formData, stock: (val === '' ? '' : Number(val)) as any });
                                         }}
                                         placeholder="0"
                                         disabled={Boolean(formData.combinations && formData.combinations.length > 0)}
@@ -438,7 +438,7 @@ export function ProductFormModal({ isOpen, onClose, onSubmit, initialData }: Pro
                                                             onChange={e => {
                                                                 const val = e.target.value;
                                                                 const newCombos = [...(formData.combinations || [])];
-                                                                newCombos[idx].price = val === '' ? '' : Number(val);
+                                                                newCombos[idx].price = (val === '' ? '' : Number(val)) as any;
                                                                 setFormData(prev => ({ ...prev, combinations: newCombos }));
                                                             }}
                                                             placeholder={String(formData.price || 0)}
@@ -453,7 +453,7 @@ export function ProductFormModal({ isOpen, onClose, onSubmit, initialData }: Pro
                                                             onChange={e => {
                                                                 const val = e.target.value;
                                                                 const newCombos = [...(formData.combinations || [])];
-                                                                newCombos[idx].stock = val === '' ? '' : Number(val);
+                                                                newCombos[idx].stock = (val === '' ? '' : Number(val)) as any;
                                                                 setFormData(prev => ({ ...prev, combinations: newCombos }));
                                                             }}
                                                             placeholder="0"
@@ -480,8 +480,4 @@ export function ProductFormModal({ isOpen, onClose, onSubmit, initialData }: Pro
     );
 }
 
-// Helper badge component simple local
-function Badge({ variant, className, children }: any) {
-    const bg = variant === 'secondary' ? 'bg-blue-50 text-blue-700 border-blue-100' : 'bg-gray-100';
-    return <span className={`px-2 py-0.5 rounded-full border ${bg} ${className}`}>{children}</span>;
-}
+
