@@ -6,6 +6,7 @@ import { Package, User as UserIcon, LogOut, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Order } from '../../types';
 import { OrderDetailsModal } from '../../components/admin/OrderDetailsModal';
+import client from '../../api/client';
 
 export function AccountPage() {
     const { user, logout } = useAuth();
@@ -14,17 +15,34 @@ export function AccountPage() {
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
     useEffect(() => {
-        const storedOrders = localStorage.getItem('orders');
-        if (storedOrders) {
-            const allOrders: Order[] = JSON.parse(storedOrders);
-            // Filter by user ID if we have multi-user support, otherwise show all for simplified MVP or just this user's
-            // Context says data is local, so 'orders' likely contains all orders from this browser.
-            // If we want to filter by user:
-            if (user) {
-                const userOrders = allOrders.filter((o) => o.userId === user.id).reverse();
-                setOrders(userOrders);
+        const fetchOrders = async () => {
+            if (!user) return;
+            try {
+                const { data } = await client.get('/api/orders/myorders');
+                // Adapt API response to UI model if needed
+                const adaptedOrders = data.map((o: any) => ({
+                    id: o._id,
+                    date: o.createdAt,
+                    total: o.totalPrice,
+                    status: o.status || 'pending', // Default to pending if unknown
+                    items: o.orderItems.map((i: any) => ({
+                        id: i.product || i._id, // fallback
+                        name: i.name,
+                        price: i.price,
+                        quantity: i.qty,
+                        image: i.image,
+                        variants: i.variants
+                    })),
+                    userId: o.user
+                }));
+                setOrders(adaptedOrders);
+            } catch (error) {
+                console.error("Error fetching orders:", error);
+                // Fail silently or show empty for now logic
             }
-        }
+        };
+
+        fetchOrders();
     }, [user]);
 
     const handleLogout = () => {
