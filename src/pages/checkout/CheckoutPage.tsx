@@ -58,13 +58,18 @@ export function CheckoutPage() {
                     image: item.images[0],
                     price: item.price,
                     product: item.id,
-                    variants: item.variants
+                    variants: item.variants || {}
                 })),
-                shippingAddress: address,
+                shippingAddress: {
+                    street: address.street,
+                    city: address.city,
+                    postalCode: address.zip || '0000000', // Backend require postalCode
+                    country: address.country || 'Chile'   // Backend require country
+                },
                 paymentMethod: 'WebPay',
                 itemsPrice: subtotal,
                 shippingPrice: shippingCost,
-                taxPrice: 0, // Implement tax if needed
+                taxPrice: 0,
                 totalPrice: total,
             };
 
