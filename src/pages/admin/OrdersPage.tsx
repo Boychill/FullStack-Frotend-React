@@ -69,19 +69,18 @@ export function OrdersPage() {
         }
 
         try {
-            // Check if endpoint exists, otherwise just log (backend might need specific status update endpoint)
-            // Assuming /api/orders/:id/type or specific logic. 
-            // Currently backend only has /pay. Assuming we might need to add status update endpoint or use a generic one if available.
-            // Wait, previous turn I only added getOrders. I didn't verify if there is a PUT /api/orders/:id/deliver or similar.
-            // Let's assume for now we just reflect UI but warn user backend might not save if endpoint missing.
-            // Actually, best to just alert "Backend update not implemented yet" or try to implement it if I see it.
-            // Quick check: routes/orderRoutes.js has updateOrderToPaid. 
-            // I should have checked if there is a updateOrderToDelivered. 
-            // Since I am in 'Execution' and user wants to SEE orders, fetching is priority. 
-            // I will implement basic fetch now.
+            await client.put(`/orders/${orderId}/status`, { status: newStatus });
         } catch (error) {
             console.error("Error updating status:", error);
             setOrders(previousOrders); // Revert on fail
+            // Also revert selected order if needed
+            if (selectedOrder && selectedOrder.id === orderId) {
+                // Find original status from previousOrders
+                const original = previousOrders.find(o => o.id === orderId);
+                if (original) {
+                    setSelectedOrder({ ...selectedOrder, status: original.status } as Order);
+                }
+            }
             alert("Error al actualizar estado en el servidor");
         }
     };
