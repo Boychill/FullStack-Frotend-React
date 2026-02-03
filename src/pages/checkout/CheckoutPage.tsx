@@ -79,9 +79,10 @@ export function CheckoutPage() {
             // updateProductStock(...) // This is local, better to just let next fetch handle it or refetch
 
             // Clear local storage orders logic (deprecated)
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error placing order:", error);
-            alert("Hubo un error al procesar tu pedido. Intenta nuevamente.");
+            const msg = error.response?.data?.message || "Hubo un error al procesar tu pedido.";
+            alert(`Error: ${msg}`);
         }
     };
 
