@@ -34,15 +34,10 @@ export function ProductsPage() {
     };
 
     const handleSubmit = async (product: Product) => {
-        try {
-            if (editingProduct) {
-                await updateProduct(product);
-            } else {
-                await addProduct(product);
-            }
-        } catch (error) {
-            console.error("Failed to save product:", error);
-            throw error; // Re-throw so Modal can catch and show error
+        if (editingProduct) {
+            await updateProduct(product);
+        } else {
+            await addProduct(product);
         }
     };
 
