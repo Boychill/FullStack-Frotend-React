@@ -16,9 +16,15 @@ export function AccountPage() {
 
     useEffect(() => {
         const fetchOrders = async () => {
-            if (!user) return;
+            if (!user) {
+                console.log("No user found in context, skipping fetch");
+                return;
+            }
+            console.log("Fetching orders for user:", user.id || user._id);
             try {
                 const { data } = await client.get('/api/orders/myorders');
+                console.log("API Response (MyOrders):", data);
+
                 // Adapt API response to UI model if needed
                 const adaptedOrders = data.map((o: any) => ({
                     id: o._id,
@@ -35,10 +41,15 @@ export function AccountPage() {
                     })),
                     userId: o.user
                 }));
+                console.log("Adapted Orders:", adaptedOrders);
                 setOrders(adaptedOrders);
-            } catch (error) {
+            } catch (error: any) {
                 console.error("Error fetching orders:", error);
-                // Fail silently or show empty for now logic
+                if (error.response) {
+                    console.error("Server Error Data:", error.response.data);
+                    console.error("Server Status:", error.response.status);
+                    alert(`Error cargando pedidos: Status ${error.response.status}`);
+                }
             }
         };
 
