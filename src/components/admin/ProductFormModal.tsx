@@ -226,9 +226,10 @@ export function ProductFormModal({ isOpen, onClose, onSubmit, initialData }: Pro
         try {
             await onSubmit(productSubmission);
             onClose();
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
-            alert("Error al guardar el producto. Verifique los datos.");
+            const msg = error.response?.data?.message || error.message || "Error desconocido";
+            alert(`Error del servidor: ${msg}`);
         }
     };
 
