@@ -20,7 +20,7 @@ export function AccountPage() {
                 console.log("No user found in context, skipping fetch");
                 return;
             }
-            console.log("Fetching orders for user:", user.id || user._id);
+            console.log("Fetching orders for user:", user.id);
             try {
                 const { data } = await client.get('/api/orders/myorders');
                 console.log("API Response (MyOrders):", data);
