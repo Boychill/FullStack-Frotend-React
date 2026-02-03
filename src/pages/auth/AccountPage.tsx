@@ -22,7 +22,8 @@ export function AccountPage() {
             }
             console.log("Fetching orders for user:", user.id);
             try {
-                const { data } = await client.get('/api/orders/myorders');
+                // client baseURL already includes /api, so we just append /orders/myorders
+                const { data } = await client.get('/orders/myorders');
                 console.log("API Response (MyOrders):", data);
 
                 // Adapt API response to UI model if needed

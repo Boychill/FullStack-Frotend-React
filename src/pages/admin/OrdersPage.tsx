@@ -15,7 +15,8 @@ export function OrdersPage() {
     useEffect(() => {
         const fetchOrders = async () => {
             try {
-                const { data } = await client.get('/api/orders');
+                // client baseURL already includes /api
+                const { data } = await client.get('/orders');
                 const adaptedOrders = data.map((o: any) => ({
                     id: o._id,
                     date: o.createdAt,
