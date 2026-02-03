@@ -188,12 +188,18 @@ export function ProductFormModal({ isOpen, onClose, onSubmit, initialData }: Pro
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitError, setSubmitError] = useState('');
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setSubmitError('');
 
         if (!validateForm()) {
             return;
         }
+
+        setIsSubmitting(true);
 
         const finalPrice = formData.price === '' ? 0 : Number(formData.price);
         const finalStock = formData.stock === '' ? 0 : Number(formData.stock);
@@ -223,8 +229,15 @@ export function ProductFormModal({ isOpen, onClose, onSubmit, initialData }: Pro
             combinations: cleanCombinations
         } as Product;
 
-        onSubmit(productSubmission);
-        onClose();
+        try {
+            await onSubmit(productSubmission);
+            onClose();
+        } catch (error) {
+            console.error(error);
+            setSubmitError('Error al guardar el producto. Verifique los datos e intente nuevamente.');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -507,11 +520,18 @@ export function ProductFormModal({ isOpen, onClose, onSubmit, initialData }: Pro
                         </div>
                     )}
 
-                    <div className="pt-4 flex justify-end gap-3 sticky bottom-0 bg-white border-t border-gray-100 mt-auto">
-                        <Button type="button" variant="ghost" onClick={onClose}>Cancelar</Button>
-                        <Button type="submit" className="bg-gray-900 hover:bg-gray-800 text-white shadow-lg shadow-gray-900/20">
-                            {initialData ? 'Guardar Cambios' : 'Crear Producto'}
-                        </Button>
+                    <div className="pt-4 flex flex-col gap-3 sticky bottom-0 bg-white border-t border-gray-100 mt-auto">
+                        {submitError && (
+                            <div className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg border border-red-100 flex items-center">
+                                <span className="mr-2">⚠️</span> {submitError}
+                            </div>
+                        )}
+                        <div className="flex justify-end gap-3">
+                            <Button type="button" variant="ghost" onClick={onClose} disabled={isSubmitting}>Cancelar</Button>
+                            <Button type="submit" disabled={isSubmitting} className="bg-gray-900 hover:bg-gray-800 text-white shadow-lg shadow-gray-900/20">
+                                {isSubmitting ? 'Guardando...' : (initialData ? 'Guardar Cambios' : 'Crear Producto')}
+                            </Button>
+                        </div>
                     </div>
                 </form>
             </div>

@@ -33,11 +33,16 @@ export function ProductsPage() {
         setIsModalOpen(true);
     };
 
-    const handleSubmit = (product: Product) => {
-        if (editingProduct) {
-            updateProduct(product);
-        } else {
-            addProduct(product);
+    const handleSubmit = async (product: Product) => {
+        try {
+            if (editingProduct) {
+                await updateProduct(product);
+            } else {
+                await addProduct(product);
+            }
+        } catch (error) {
+            console.error("Failed to save product:", error);
+            throw error; // Re-throw so Modal can catch and show error
         }
     };
 
