@@ -42,7 +42,11 @@ export function AccountPage() {
                         variants: i.variants
                     })),
                     userId: o.user,
-                    shippingAddress: o.shippingAddress || {} // Ensure it exists
+                    shippingAddress: o.shippingAddress || {}, // Ensure it exists
+                    customer: {
+                        name: user.name,
+                        email: user.email
+                    }
                 }));
                 console.log("Adapted Orders:", adaptedOrders);
                 setOrders(adaptedOrders);

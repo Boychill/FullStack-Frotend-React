@@ -63,4 +63,8 @@ export interface Order {
     status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
     date: string;
     shippingAddress: Address;
+    customer?: {
+        name: string;
+        email: string;
+    };
 }

@@ -15,20 +15,14 @@ export function OrderDetailsModal({ order, isOpen, onClose, onStatusChange }: Or
     const [customer, setCustomer] = useState<{ name: string, email: string } | null>(null);
 
     useEffect(() => {
-        if (order?.userId) {
-            // Try to find the user in local storage to show real details
-            try {
-                const users = JSON.parse(localStorage.getItem('users_db') || '[]');
-                const found = users.find((u: any) => u.id === order.userId);
-                if (found) {
-                    setCustomer({ name: found.name, email: found.email });
-                } else if (order.userId === 'admin-1') {
-                    setCustomer({ name: 'Admin', email: 'admin@admin.com' });
-                } else {
-                    setCustomer(null);
-                }
-            } catch (e) {
-                console.error("Error loading users", e);
+        if (order) {
+            if (order.customer) {
+                setCustomer(order.customer);
+            } else if (order.userId === 'admin-1') {
+                setCustomer({ name: 'Admin', email: 'admin@admin.com' });
+            } else {
+                // Fallback for any legacy data
+                setCustomer(null);
             }
         }
     }, [order]);

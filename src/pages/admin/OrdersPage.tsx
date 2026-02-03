@@ -33,7 +33,11 @@ export function OrdersPage() {
                     })),
                     userId: o.user?._id || o.user,
                     userName: o.user?.name || 'Cliente',
-                    shippingAddress: o.shippingAddress || {} // Ensure it exists
+                    shippingAddress: o.shippingAddress || {},
+                    customer: o.user ? {
+                        name: o.user.name,
+                        email: o.user.email
+                    } : undefined
                 }));
                 setOrders(adaptedOrders);
                 setFilteredOrders(adaptedOrders);
