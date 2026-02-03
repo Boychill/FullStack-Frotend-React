@@ -1,15 +1,16 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useProducts } from '../../context/ProductContext';
+// import { useProducts } from '../../context/ProductContext';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { CheckCircle, CreditCard, MapPin, Truck } from 'lucide-react';
+import client from '../../api/client';
 
 export function CheckoutPage() {
     const { cart, total, subtotal, shippingCost, clearCart, updateQuantity, removeFromCart } = useCart();
-    const { updateProductStock } = useProducts();
+    // const { updateProductStock } = useProducts(); // Frontend stock update removed in favor of backend
     const { user } = useAuth();
     const navigate = useNavigate();
 
@@ -43,35 +44,45 @@ export function CheckoutPage() {
         );
     }
 
-    const handlePlaceOrder = () => {
+    const handlePlaceOrder = async () => {
         if (!user) {
             navigate('/auth/login?redirect=/checkout');
             return;
         }
 
-        const newOrder = {
-            id: crypto.randomUUID(),
-            userId: user.id,
-            items: cart,
-            total: total,
-            status: 'pending',
-            date: new Date().toISOString(),
-            shippingAddress: address
-        };
+        try {
+            const orderData = {
+                orderItems: cart.map(item => ({
+                    name: item.name,
+                    qty: item.quantity,
+                    image: item.images[0],
+                    price: item.price,
+                    product: item.id,
+                    variants: item.variants
+                })),
+                shippingAddress: address,
+                paymentMethod: 'WebPay',
+                itemsPrice: subtotal,
+                shippingPrice: shippingCost,
+                taxPrice: 0, // Implement tax if needed
+                totalPrice: total,
+            };
 
-        const existingOrders = JSON.parse(localStorage.getItem('orders') || '[]');
-        localStorage.setItem('orders', JSON.stringify([...existingOrders, newOrder]));
+            await client.post('/orders', orderData);
 
-        // Deduct stock
-        updateProductStock(cart.map(item => ({
-            id: item.id,
-            quantity: item.quantity,
-            variants: item.variants
-        })));
+            // Success
+            clearCart();
+            // Store order ID if needed to show receipt?
+            setStep(4);
 
-        clearCart();
-        // Show success state
-        setStep(4);
+            // Optional: We could refresh products from backend here to sync stock
+            // updateProductStock(...) // This is local, better to just let next fetch handle it or refetch
+
+            // Clear local storage orders logic (deprecated)
+        } catch (error) {
+            console.error("Error placing order:", error);
+            alert("Hubo un error al procesar tu pedido. Intenta nuevamente.");
+        }
     };
 
     const renderStep1_Address = () => (

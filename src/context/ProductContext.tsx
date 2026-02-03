@@ -58,19 +58,41 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
         return products.find(p => p.id === id);
     };
 
-    const addProduct = (product: Product) => {
-        const newProducts = [...products, product];
-        saveProducts(newProducts);
+    const addProduct = async (product: Product) => {
+        try {
+            const { data } = await client.post('/products', product);
+            const newProduct = { ...data, id: data._id || data.id };
+            setProducts([...products, newProduct]);
+            setFilteredProducts([...products, newProduct]);
+        } catch (error) {
+            console.error("Error creating product:", error);
+            throw error;
+        }
     };
 
-    const updateProduct = (updatedProduct: Product) => {
-        const newProducts = products.map(p => p.id === updatedProduct.id ? updatedProduct : p);
-        saveProducts(newProducts);
+    const updateProduct = async (updatedProduct: Product) => {
+        try {
+            const { data } = await client.put(`/products/${updatedProduct.id}`, updatedProduct);
+            const newProd = { ...data, id: data._id || data.id };
+            const newProducts = products.map(p => p.id === updatedProduct.id ? newProd : p);
+            setProducts(newProducts);
+            setFilteredProducts(newProducts);
+        } catch (error) {
+            console.error("Error updating product:", error);
+            throw error;
+        }
     };
 
-    const deleteProduct = (id: string) => {
-        const newProducts = products.filter(p => p.id !== id);
-        saveProducts(newProducts);
+    const deleteProduct = async (id: string) => {
+        try {
+            await client.delete(`/products/${id}`);
+            const newProducts = products.filter(p => p.id !== id);
+            setProducts(newProducts);
+            setFilteredProducts(newProducts);
+        } catch (error) {
+            console.error("Error deleting product:", error);
+            throw error;
+        }
     };
 
     const updateProductStock = (items: { id: string; quantity: number; variants?: Record<string, string> }[]) => {
