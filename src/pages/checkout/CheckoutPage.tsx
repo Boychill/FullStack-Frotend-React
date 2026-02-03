@@ -86,8 +86,12 @@ export function CheckoutPage() {
             // Clear local storage orders logic (deprecated)
         } catch (error: any) {
             console.error("Error placing order:", error);
-            const msg = error.response?.data?.message || "Hubo un error al procesar tu pedido.";
-            alert(`Error: ${msg}`);
+            const msg = error.response?.data?.message;
+            if (msg) {
+                alert(`Error del Servidor: ${msg}`);
+            } else {
+                alert(`Error de Diagnóstico: Status ${error.response?.status} - ${JSON.stringify(error.response?.data)}`);
+            }
         }
     };
 
