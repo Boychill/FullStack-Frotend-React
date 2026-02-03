@@ -33,14 +33,16 @@ export function AccountPage() {
                     total: o.totalPrice,
                     status: o.status || 'pending', // Default to pending if unknown
                     items: o.orderItems.map((i: any) => ({
-                        id: i.product || i._id, // fallback
+                        id: i.product || i._id,
                         name: i.name,
                         price: i.price,
                         quantity: i.qty,
                         image: i.image,
+                        images: [i.image], // Map single image to array for compatible UI
                         variants: i.variants
                     })),
-                    userId: o.user
+                    userId: o.user,
+                    shippingAddress: o.shippingAddress || {} // Ensure it exists
                 }));
                 console.log("Adapted Orders:", adaptedOrders);
                 setOrders(adaptedOrders);

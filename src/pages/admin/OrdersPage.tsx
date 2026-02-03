@@ -28,10 +28,12 @@ export function OrdersPage() {
                         price: i.price,
                         quantity: i.qty,
                         image: i.image,
+                        images: [i.image],
                         variants: i.variants
                     })),
                     userId: o.user?._id || o.user,
-                    userName: o.user?.name || 'Cliente'
+                    userName: o.user?.name || 'Cliente',
+                    shippingAddress: o.shippingAddress || {} // Ensure it exists
                 }));
                 setOrders(adaptedOrders);
                 setFilteredOrders(adaptedOrders);
